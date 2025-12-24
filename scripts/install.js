@@ -48,10 +48,25 @@ async function buildFromSource() {
     const downloadDeps = require('./download-deps.js');
     await downloadDeps();
 
-    // Build with node-gyp (use local version, force VS2022)
+    // Build with node-gyp
     console.log('Compiling native addon...');
-    const nodeGypPath = path.join(rootDir, 'node_modules', '.bin', 'node-gyp');
-    const nodeGypCmd = process.platform === 'win32' ? `"${nodeGypPath}.cmd"` : nodeGypPath;
+
+    // Find node-gyp: try local, then hoisted, then global
+    const ext = process.platform === 'win32' ? '.cmd' : '';
+    const possiblePaths = [
+        path.join(rootDir, 'node_modules', '.bin', 'node-gyp' + ext),
+        // When installed as dependency, npm may hoist to parent node_modules
+        path.join(rootDir, '..', '.bin', 'node-gyp' + ext),
+    ];
+
+    let nodeGypCmd = 'node-gyp'; // fallback to global
+    for (const p of possiblePaths) {
+        if (fs.existsSync(p)) {
+            nodeGypCmd = `"${p}"`;
+            break;
+        }
+    }
+
     const msvs_version = process.platform === 'win32' ? ' --msvs_version=2022' : '';
     execSync(`${nodeGypCmd} rebuild${msvs_version}`, {
         cwd: rootDir,
