@@ -1,6 +1,6 @@
 {
   "name": "paddle-ocr-ncnn",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node.js bindings for PaddleOCR using ncnn inference engine",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -33,6 +33,7 @@
   "dependencies": {
     "node-addon-api": "^8.0.0",
     "node-gyp": "^10.0.0",
+    "paddle-ocr-ncnn": "github:Sr173/paddle-ocr-ncnn",
     "prebuild-install": "^7.1.2"
   },
   "devDependencies": {
@@ -43,7 +44,9 @@
     "node": ">=18.0.0"
   },
   "binary": {
-    "napi_versions": [8]
+    "napi_versions": [
+      8
+    ]
   },
   "files": [
     "lib/",
