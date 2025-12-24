@@ -118,12 +118,12 @@
             "<(module_root_dir)/deps/ncnn/x64/lib/OGLCompiler.lib",
             "<(module_root_dir)/deps/ncnn/x64/lib/OSDependent.lib",
             "<(module_root_dir)/deps/ncnn/x64/lib/glslang-default-resource-limits.lib",
-            "<(module_root_dir)/deps/opencv/build/x64/vc16/lib/opencv_world4100.lib"
+            "<(module_root_dir)/deps/opencv/build/x64/vc16/lib/opencv_world4120.lib"
           ],
           "copies": [{
             "destination": "<(module_root_dir)/build/Release",
             "files": [
-              "<(module_root_dir)/deps/opencv/build/x64/vc16/bin/opencv_world4100.dll"
+              "<(module_root_dir)/deps/opencv/build/x64/vc16/bin/opencv_world4120.dll"
             ]
           }]
         }]
