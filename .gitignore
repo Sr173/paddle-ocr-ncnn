@@ -1,0 +1,39 @@
+# Build artifacts
+build/
+node_modules/
+
+# Downloaded dependencies (auto-downloaded via postinstall)
+deps/*.framework/
+deps/*.zip
+!deps/.gitkeep
+
+# Model files (too large for git, users download separately)
+models/*.bin
+models/*.param
+models/*.txt
+models/det/
+models/cls/
+models/rec/
+!models/config.json
+
+# Test images
+*.png
+*.jpg
+*.jpeg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug
+*.log
+check/
+
+# Development
+original-repo/
