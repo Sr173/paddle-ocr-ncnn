@@ -92,6 +92,7 @@
           ]
         }],
         ["OS=='win'", {
+            "msbuild_toolset": "v143",
           "msvs_settings": {
             "VCCLCompilerTool": {
               "ExceptionHandling": 1,
