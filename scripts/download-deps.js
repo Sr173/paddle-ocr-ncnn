@@ -19,13 +19,13 @@ const NCNN_RELEASES = {
     'win32-x64': `https://github.com/Tencent/ncnn/releases/download/${NCNN_VERSION}/ncnn-${NCNN_VERSION}-windows-vs2022.zip`,
 };
 
-// OpenCV releases (minimal static build)
+// OpenCV releases
 const OPENCV_VERSION = '4.10.0';
 const OPENCV_RELEASES = {
-    'darwin-arm64': `https://github.com/opencv/opencv/releases/download/${OPENCV_VERSION}/opencv-${OPENCV_VERSION}-macos-arm64.zip`,
-    'darwin-x64': `https://github.com/opencv/opencv/releases/download/${OPENCV_VERSION}/opencv-${OPENCV_VERSION}-macos-x86_64.zip`,
-    'linux-x64': `https://github.com/opencv/opencv/releases/download/${OPENCV_VERSION}/opencv-${OPENCV_VERSION}-linux-x86_64.zip`,
-    'win32-x64': `https://github.com/opencv/opencv/releases/download/${OPENCV_VERSION}/opencv-${OPENCV_VERSION}-windows.zip`,
+    'darwin-arm64': null, // Use brew install opencv
+    'darwin-x64': null,   // Use brew install opencv
+    'linux-x64': null,    // Use apt install libopencv-dev
+    'win32-x64': `https://github.com/opencv/opencv/releases/download/${OPENCV_VERSION}/opencv-${OPENCV_VERSION}-windows.exe`,
 };
 
 function getPlatformKey() {
@@ -138,19 +138,58 @@ async function downloadDeps() {
     }
 
     // Download OpenCV if not exists
-    // Note: OpenCV releases don't have simple pre-built static libs
-    // We'll need to use system OpenCV or build our own releases
     if (!fs.existsSync(opencvDir)) {
-        console.log('\nOpenCV pre-built binaries need to be set up manually or via system package manager.');
-        console.log('On macOS: brew install opencv');
-        console.log('On Ubuntu: sudo apt-get install libopencv-dev');
-        console.log('On Windows: Download from https://opencv.org/releases/');
-        console.log('');
-        console.log('Alternatively, set OPENCV_DIR environment variable to your OpenCV installation.');
+        const opencvUrl = OPENCV_RELEASES[platformKey];
+
+        if (opencvUrl && process.platform === 'win32') {
+            // Windows: Download and extract self-extracting exe
+            const opencvExe = path.join(DEPS_DIR, 'opencv.exe');
+
+            try {
+                await downloadFile(opencvUrl, opencvExe);
+                console.log('Extracting OpenCV (this may take a while)...');
+
+                // Run the self-extracting exe silently to deps folder
+                execSync(`"${opencvExe}" -o"${DEPS_DIR}" -y`, { stdio: 'inherit' });
+
+                // Clean up exe
+                fs.unlinkSync(opencvExe);
+
+                // Rename extracted folder to 'opencv'
+                const extractedDirs = fs.readdirSync(DEPS_DIR).filter(d =>
+                    d.startsWith('opencv') && d !== 'opencv' && fs.statSync(path.join(DEPS_DIR, d)).isDirectory()
+                );
+                if (extractedDirs.length > 0) {
+                    fs.renameSync(path.join(DEPS_DIR, extractedDirs[0]), opencvDir);
+                }
+
+                console.log('OpenCV downloaded successfully.');
+                console.log(`OpenCV installed to: ${opencvDir}`);
+            } catch (err) {
+                console.error('Failed to download OpenCV:', err.message);
+                console.log('\nPlease manually download OpenCV from:');
+                console.log('https://opencv.org/releases/');
+                console.log(`And extract to: ${opencvDir}`);
+            }
+        } else {
+            console.log('\nOpenCV needs to be installed via system package manager:');
+            console.log('On macOS: brew install opencv');
+            console.log('On Ubuntu: sudo apt-get install libopencv-dev');
+            console.log('');
+            console.log('Alternatively, set OPENCV_DIR environment variable to your OpenCV installation.');
+        }
+    } else {
+        console.log('OpenCV already exists, skipping download.');
     }
 }
 
-downloadDeps().catch(err => {
-    console.error('Error:', err);
-    process.exit(1);
-});
+// Export for use as module
+module.exports = downloadDeps;
+
+// Run directly if called as script
+if (require.main === module) {
+    downloadDeps().catch(err => {
+        console.error('Error:', err);
+        process.exit(1);
+    });
+}

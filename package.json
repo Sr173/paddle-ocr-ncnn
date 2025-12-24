@@ -6,13 +6,17 @@
   "types": "lib/index.d.ts",
   "gypfile": true,
   "scripts": {
-    "preinstall": "node scripts/download-deps.js",
-    "install": "node-gyp rebuild",
+    "install": "node scripts/install.js",
     "build": "node-gyp build",
-    "rebuild": "node-gyp rebuild",
+    "rebuild": "node scripts/download-deps.js && node-gyp rebuild",
     "clean": "node-gyp clean",
     "build:debug": "node-gyp rebuild --debug",
-    "test": "node test/test.js"
+    "test": "node test/test.js",
+    "prebuild": "prebuild --all --strip",
+    "prebuild:win": "prebuild -t 18.0.0 -t 20.0.0 -t 22.0.0 --arch x64 --strip",
+    "prebuild:mac": "prebuild -t 18.0.0 -t 20.0.0 -t 22.0.0 --arch x64 --arch arm64 --strip",
+    "prebuild:linux": "prebuild -t 18.0.0 -t 20.0.0 -t 22.0.0 --arch x64 --strip",
+    "prebuild:upload": "prebuild --upload-all"
   },
   "keywords": [
     "ocr",
@@ -27,14 +31,16 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "node-addon-api": "^8.0.0"
+    "node-addon-api": "^8.0.0",
+    "prebuild-install": "^7.1.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "node-gyp": "^10.0.0"
+    "node-gyp": "^10.0.0",
+    "prebuild": "^13.0.1"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "binary": {
     "napi_versions": [8]
@@ -43,6 +49,7 @@
     "lib/",
     "src/",
     "scripts/",
-    "binding.gyp"
+    "binding.gyp",
+    "prebuilds/"
   ]
 }

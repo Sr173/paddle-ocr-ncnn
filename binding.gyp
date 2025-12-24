@@ -95,7 +95,10 @@
           "msvs_settings": {
             "VCCLCompilerTool": {
               "ExceptionHandling": 1,
-              "AdditionalOptions": ["/std:c++17"]
+              "AdditionalOptions": ["/std:c++17", "/MD"]
+            },
+            "VCLinkerTool": {
+              "AdditionalDependencies": ["ucrt.lib"]
             }
           },
           "defines": [
@@ -103,15 +106,26 @@
             "NOMINMAX"
           ],
           "include_dirs": [
-            "<!(echo %NCNN_DIR%)/include/ncnn",
-            "<!(echo %OPENCV_DIR%)/include"
+            "deps/ncnn/x64/include/ncnn",
+            "deps/opencv/build/include"
           ],
           "libraries": [
-            "-l<!(echo %NCNN_DIR%)/lib/ncnn.lib",
-            "-l<!(echo %OPENCV_DIR%)/lib/opencv_core4100.lib",
-            "-l<!(echo %OPENCV_DIR%)/lib/opencv_imgproc4100.lib",
-            "-l<!(echo %OPENCV_DIR%)/lib/opencv_imgcodecs4100.lib"
-          ]
+            "<(module_root_dir)/deps/ncnn/x64/lib/ncnn.lib",
+            "<(module_root_dir)/deps/ncnn/x64/lib/glslang.lib",
+            "<(module_root_dir)/deps/ncnn/x64/lib/SPIRV.lib",
+            "<(module_root_dir)/deps/ncnn/x64/lib/MachineIndependent.lib",
+            "<(module_root_dir)/deps/ncnn/x64/lib/GenericCodeGen.lib",
+            "<(module_root_dir)/deps/ncnn/x64/lib/OGLCompiler.lib",
+            "<(module_root_dir)/deps/ncnn/x64/lib/OSDependent.lib",
+            "<(module_root_dir)/deps/ncnn/x64/lib/glslang-default-resource-limits.lib",
+            "<(module_root_dir)/deps/opencv/build/x64/vc16/lib/opencv_world4100.lib"
+          ],
+          "copies": [{
+            "destination": "<(module_root_dir)/build/Release",
+            "files": [
+              "<(module_root_dir)/deps/opencv/build/x64/vc16/bin/opencv_world4100.dll"
+            ]
+          }]
         }]
       ]
     }
