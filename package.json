@@ -1,6 +1,6 @@
 {
   "name": "paddle-ocr-ncnn",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Node.js bindings for PaddleOCR using ncnn inference engine",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
