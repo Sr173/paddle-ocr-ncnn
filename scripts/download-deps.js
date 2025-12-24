@@ -20,7 +20,7 @@ const NCNN_RELEASES = {
 };
 
 // OpenCV releases
-const OPENCV_VERSION = '4.10.0';
+const OPENCV_VERSION = '4.12.0';
 const OPENCV_RELEASES = {
     'darwin-arm64': null, // Use brew install opencv
     'darwin-x64': null,   // Use brew install opencv
