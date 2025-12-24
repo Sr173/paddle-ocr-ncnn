@@ -40,12 +40,13 @@ function tryPrebuildInstall() {
     return false;
 }
 
-function buildFromSource() {
+async function buildFromSource() {
     console.log('Building from source...');
 
     // Download dependencies
     console.log('Downloading dependencies...');
-    require('./download-deps.js');
+    const downloadDeps = require('./download-deps.js');
+    await downloadDeps();
 
     // Build with node-gyp
     console.log('Compiling native addon...');
@@ -62,7 +63,7 @@ async function main() {
     }
 
     // Fall back to building from source
-    buildFromSource();
+    await buildFromSource();
 }
 
 main().catch(err => {

@@ -35,19 +35,31 @@ function getPlatformKey() {
 function downloadFile(url, dest) {
     return new Promise((resolve, reject) => {
         console.log(`Downloading: ${url}`);
+        console.log(`Destination: ${dest}`);
 
         const file = fs.createWriteStream(dest);
 
-        const request = (url) => {
-            https.get(url, (response) => {
-                if (response.statusCode === 302 || response.statusCode === 301) {
-                    // Follow redirect
-                    request(response.headers.location);
+        const request = (currentUrl) => {
+            const protocol = currentUrl.startsWith('https') ? https : require('http');
+
+            protocol.get(currentUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                },
+                timeout: 300000
+            }, (response) => {
+                // Handle redirects (301, 302, 303, 307, 308)
+                if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                    const redirectUrl = response.headers.location;
+                    console.log(`Redirecting to: ${redirectUrl}`);
+                    request(redirectUrl);
                     return;
                 }
 
                 if (response.statusCode !== 200) {
-                    reject(new Error(`Failed to download: ${response.statusCode}`));
+                    file.close();
+                    fs.unlink(dest, () => {});
+                    reject(new Error(`Failed to download: HTTP ${response.statusCode}`));
                     return;
                 }
 
@@ -56,8 +68,12 @@ function downloadFile(url, dest) {
 
                 response.on('data', (chunk) => {
                     downloaded += chunk.length;
-                    const percent = ((downloaded / total) * 100).toFixed(1);
-                    process.stdout.write(`\rProgress: ${percent}%`);
+                    if (total) {
+                        const percent = ((downloaded / total) * 100).toFixed(1);
+                        process.stdout.write(`\rProgress: ${percent}% (${(downloaded / 1024 / 1024).toFixed(1)}MB / ${(total / 1024 / 1024).toFixed(1)}MB)`);
+                    } else {
+                        process.stdout.write(`\rDownloaded: ${(downloaded / 1024 / 1024).toFixed(1)}MB`);
+                    }
                 });
 
                 response.pipe(file);
@@ -67,9 +83,20 @@ function downloadFile(url, dest) {
                     console.log('\nDownload complete.');
                     resolve();
                 });
+
+                file.on('error', (err) => {
+                    file.close();
+                    fs.unlink(dest, () => {});
+                    reject(err);
+                });
             }).on('error', (err) => {
+                file.close();
                 fs.unlink(dest, () => {});
                 reject(err);
+            }).on('timeout', () => {
+                file.close();
+                fs.unlink(dest, () => {});
+                reject(new Error('Download timeout'));
             });
         };
 
