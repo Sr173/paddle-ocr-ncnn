@@ -32,11 +32,11 @@
   "license": "MIT",
   "dependencies": {
     "node-addon-api": "^8.0.0",
+    "node-gyp": "^10.0.0",
     "prebuild-install": "^7.1.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "node-gyp": "^10.0.0",
     "prebuild": "^13.0.1"
   },
   "engines": {

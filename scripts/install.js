@@ -48,9 +48,12 @@ async function buildFromSource() {
     const downloadDeps = require('./download-deps.js');
     await downloadDeps();
 
-    // Build with node-gyp
+    // Build with node-gyp (use local version, force VS2022)
     console.log('Compiling native addon...');
-    execSync('node-gyp rebuild', {
+    const nodeGypPath = path.join(rootDir, 'node_modules', '.bin', 'node-gyp');
+    const nodeGypCmd = process.platform === 'win32' ? `"${nodeGypPath}.cmd"` : nodeGypPath;
+    const msvs_version = process.platform === 'win32' ? ' --msvs_version=2022' : '';
+    execSync(`${nodeGypCmd} rebuild${msvs_version}`, {
         cwd: rootDir,
         stdio: 'inherit'
     });
